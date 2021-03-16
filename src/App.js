@@ -1,6 +1,6 @@
 import './App.css';
 import CartHeader from './components/CartHeader';
-import CartFolder from './components/CartFolder';
+import CartFooter from './components/CartFooter';
 import CartItems from './components/CartItems';
 
 function App() {
@@ -8,7 +8,7 @@ function App() {
     <div>
       <CartHeader />
       <CartItems />
-      <CartFolder />
+      <CartFooter copyright={new Date().getFullYear()}/>
     </div>
   );
 }
