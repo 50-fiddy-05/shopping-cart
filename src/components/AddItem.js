@@ -3,7 +3,7 @@ import React from "react";
 class AddItem extends React.Component {
   products = this.props.products;
 
-  state = { product: {}, quantity: 0 };
+  state = { product: this.props.products[0], quantity: 0 };
 
   onSubmit = (e) => {
     e.preventDefault();
@@ -45,7 +45,7 @@ class AddItem extends React.Component {
                 ))}
               </select>
             </div>
-            <input type="submit" values="Submit" />
+            <button type="submit" className="btn btn-primary" values="Submit">Submit</button>
           </form>
         </div>
       </div>

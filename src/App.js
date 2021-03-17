@@ -8,32 +8,17 @@ import React from "react";
 class App extends React.Component {
   state = { cartItemsList: [] };
 
+  calcPrice = () => {
+    const cartItems = this.state.cartItemsList;
+    const totalPrice =cartItems.reduce((result, item) => {
+      result += (item.product.priceInCents / 100 * item.quantity)
+      console.log(result)
+      return result
+    },0)
+    return parseFloat(totalPrice).toFixed(2);
+  }
+
   render() {
-    const cartItemsList = [
-      {
-        id: 1,
-        product: { id: 40, name: "Mediocre Iron Watch", priceInCents: 399 },
-        quantity: 1,
-      },
-      {
-        id: 2,
-        product: {
-          id: 41,
-          name: "Heavy Duty Concrete Plate",
-          priceInCents: 499,
-        },
-        quantity: 2,
-      },
-      {
-        id: 3,
-        product: {
-          id: 42,
-          name: "Intelligent Paper Knife",
-          priceInCents: 1999,
-        },
-        quantity: 1,
-      },
-    ];
 
     const products = [
       { id: 40, name: "Mediocre Iron Watch", priceInCents: 399 },
@@ -54,10 +39,13 @@ class App extends React.Component {
       this.setState(prevState => ({cartItemsList: finalArray}))
     };
 
+    
+
     return (
       <div>
         <CartHeader />
         <CartItems cartItemsList={this.state.cartItemsList} />
+        <div className="container">Total Price: ${this.calcPrice()}</div>
         <AddItem
           products={products}
           addItemToCartList={addItemToCartList}
