@@ -1,16 +1,20 @@
 import React from "react";
 
 class AddItem extends React.Component {
-  products = this.props.products;
 
   state = { product: this.props.products[0], quantity: 0 };
 
   onSubmit = (e) => {
     e.preventDefault();
-    this.props.addItemToCartList(this.state);
+    console.log(this.state.quantity)
+    console.log("Additem quantity : " + this.state.quantity)
+    if(this.state.quantity > 0 ){
+      this.props.addItemToCartList(this.state);
+    }
   };
-
+  
   onChange = (e) => {
+    console.log(this.state.quantity)
     const id = e.target.value;
     const product = this.props.products.find(product => product.id == id);
     this.setState({ product: product });

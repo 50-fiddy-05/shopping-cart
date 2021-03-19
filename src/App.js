@@ -6,50 +6,56 @@ import AddItem from "./components/AddItem";
 import React from "react";
 
 class App extends React.Component {
-  state = { cartItemsList: [] };
+  state = { products: [] , cartItemsList: [], fetchingProducts: true };
 
-  calcPrice = () => {
-    const cartItems = this.state.cartItemsList;
-    const totalPrice =cartItems.reduce((result, item) => {
-      result += (item.product.priceInCents / 100 * item.quantity)
-      console.log(result)
-      return result
-    },0)
-    return parseFloat(totalPrice).toFixed(2);
+  async componentDidMount() {
+    this.setState({fetchingProducts: true})
+    const response = await fetch("http://localhost:8082/api/products");
+    const json = await response.json();
+    this.setState({ products: json, fetchingProducts: false });
   }
 
+  spinner = () => {
+    <div class="spinner-border"></div>
+  };
+  
+  addItemToCartList = (item) => {
+    let copyArray = this.state.cartItemsList
+    const isItemPresent = copyArray.some(cartItem => cartItem.product.id  === item.product.id)
+    if(isItemPresent) {
+      const index = copyArray.findIndex(product => product.product.id === item.product.id)
+      copyArray[index].quantity = parseInt(copyArray[index].quantity) + parseInt(item.quantity)
+    } else{
+      copyArray = [...copyArray, item]
+    }
+    this.setState((prevState) => ({ cartItemsList: copyArray }));
+  };
   render() {
-
-    const products = [
-      { id: 40, name: "Mediocre Iron Watch", priceInCents: 399 },
-      { id: 41, name: "Heavy Duty Concrete Plate", priceInCents: 499 },
-      { id: 42, name: "Intelligent Paper Knife", priceInCents: 1999 },
-      { id: 43, name: "Small Aluminum Keyboard", priceInCents: 2500 },
-      { id: 44, name: "Practical Copper Plate", priceInCents: 1000 },
-      { id: 45, name: "Awesome Bronze Pants", priceInCents: 399 },
-      { id: 46, name: "Intelligent Leather Clock", priceInCents: 2999 },
-      { id: 47, name: "Ergonomic Bronze Lamp", priceInCents: 40000 },
-      { id: 48, name: "Awesome Leather Shoes", priceInCents: 3990 },
-    ];
-
-    const addItemToCartList = (item) => {
-      const newArray = []
-      newArray.push(item)
-      const finalArray = newArray.concat(this.state.cartItemsList)
-      this.setState(prevState => ({cartItemsList: finalArray}))
+    const calcPrice = () => {
+      const cartItems = this.state.cartItemsList;
+      const totalPrice = cartItems.reduce((result, item) => {
+        result += (item.product.priceInCents / 100) * item.quantity;
+        return result;
+      }, 0);
+      return parseFloat(totalPrice).toFixed(2);
     };
 
-    
 
     return (
       <div>
         <CartHeader />
-        <CartItems cartItemsList={this.state.cartItemsList} />
-        <div className="container">Total Price: ${this.calcPrice()}</div>
-        <AddItem
-          products={products}
-          addItemToCartList={addItemToCartList}
-        />
+        {this.state.fetchingProducts ? (
+          this.spinner()
+        ) : (
+          <main>
+            <CartItems cartItemsList={this.state.cartItemsList} />
+            <div className="container">Total Price: ${calcPrice()}</div>
+            <AddItem
+              products={this.state.products}
+              addItemToCartList={this.addItemToCartList}
+            />
+          </main>
+        )}
         <CartFooter copyright={new Date().getFullYear()} />
       </div>
     );
