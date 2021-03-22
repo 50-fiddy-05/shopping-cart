@@ -6,40 +6,56 @@ import AddItem from "./components/AddItem";
 import React from "react";
 
 class App extends React.Component {
-  state = { products: [] , cartItemsList: [], fetchingProducts: true };
+  state = { products: [], cartItemsList: [], fetchingProducts: true };
 
   async componentDidMount() {
-    this.setState({fetchingProducts: true})
+    this.setState({ fetchingProducts: true });
     const response = await fetch("http://localhost:8082/api/products");
+    const response2 = await fetch("http://localhost:8082/api/items");
     const json = await response.json();
-    this.setState({ products: json, fetchingProducts: false });
+    const json2 = await response2.json();
+    this.setState({
+      products: json,
+      cartItemsList: json2,
+      fetchingProducts: false,
+    });
   }
 
   spinner = () => {
-    <div class="spinner-border"></div>
+    <div class="spinner-border"></div>;
   };
-  
-  addItemToCartList = (item) => {
-    let copyArray = this.state.cartItemsList
-    const isItemPresent = copyArray.some(cartItem => cartItem.product.id  === item.product.id)
-    if(isItemPresent) {
-      const index = copyArray.findIndex(product => product.product.id === item.product.id)
-      copyArray[index].quantity = parseInt(copyArray[index].quantity) + parseInt(item.quantity)
-    } else{
-      copyArray = [...copyArray, item]
-    }
-    this.setState((prevState) => ({ cartItemsList: copyArray }));
-  };
+
+  createItem = async (product) => {
+    const response = await fetch("http://localhost:8082/api/items", {
+      method: "POST",
+      body: JSON.stringify(product),
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+      },
+    });
+    const item = await response.json();
+    this.setState({ cartItemsList: [...this.state.cartItemsList, item] });
+  }
+
   render() {
+    let products = [...this.state.products];
+    let cartItems = [...this.state.cartItemsList];
+    console.log(this.state.cartItemsList)
+    let items = cartItems.map((item) => {
+      let cartItem = products.find(
+        (product) => product.id === item.product_id
+      );
+      return { product: cartItem, quantity: item.quantity };
+    });
+
     const calcPrice = () => {
-      const cartItems = this.state.cartItemsList;
-      const totalPrice = cartItems.reduce((result, item) => {
+      const totalPrice = items.reduce((result, item) => {
         result += (item.product.priceInCents / 100) * item.quantity;
         return result;
       }, 0);
       return parseFloat(totalPrice).toFixed(2);
     };
-
 
     return (
       <div>
@@ -48,11 +64,11 @@ class App extends React.Component {
           this.spinner()
         ) : (
           <main>
-            <CartItems cartItemsList={this.state.cartItemsList} />
+            <CartItems cartItemsList={items} />
             <div className="container">Total Price: ${calcPrice()}</div>
             <AddItem
               products={this.state.products}
-              addItemToCartList={this.addItemToCartList}
+              createItem={this.createItem}
             />
           </main>
         )}

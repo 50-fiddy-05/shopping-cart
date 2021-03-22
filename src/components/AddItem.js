@@ -6,19 +6,23 @@ class AddItem extends React.Component {
 
   onSubmit = (e) => {
     e.preventDefault();
-    console.log(this.state.quantity)
-    console.log("Additem quantity : " + this.state.quantity)
-    if(this.state.quantity > 0 ){
-      this.props.addItemToCartList(this.state);
+    const quantityInt = parseInt(this.state.quantity)
+    if(quantityInt > 0 ){
+      this.props.createItem({product_id: this.state.product.id, quantity: quantityInt});
     }
   };
   
   onChange = (e) => {
-    console.log(this.state.quantity)
+    e.preventDefault()
     const id = e.target.value;
     const product = this.props.products.find(product => product.id == id);
     this.setState({ product: product });
   };
+
+  quantityChange = (e) => {
+    e.preventDefault()
+    this.setState({quantity: e.target.value})
+  }
 
   render() {
     return (
@@ -29,9 +33,7 @@ class AddItem extends React.Component {
             <div className="list-group">
               <input
                 type="text"
-                onChange={(e) => {
-                  this.setState({ quantity: e.target.value });
-                }}
+                onChange={this.quantityChange}
                 className="list-group-item"
               />
             </div>
